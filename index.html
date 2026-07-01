@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Runway Pop Dress-Up</title>
+  <style>
+    :root {
+      --bg: #f7f3ef;
+      --ink: #211a1c;
+      --muted: #6d6264;
+      --line: #ddd2cc;
+      --panel: rgba(255, 255, 255, .74);
+      --accent: #d84b74;
+      --accent-2: #2f8f98;
+      --shadow: 0 14px 38px rgba(41, 30, 25, .15);
+      --skin: #c98561;
+      --hair: #32201b;
+      --top: #111827;
+      --bottom: #e9edf6;
+      --shoes: #171717;
+      --dress: transparent;
+      --metal: #f8d86a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(255, 255, 255, .9), transparent 24rem),
+        linear-gradient(135deg, #f9ede8 0%, #f5f7f4 42%, #eef6f6 100%);
+      overflow: hidden;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(230px, 300px) minmax(310px, 1fr) minmax(250px, 330px);
+      gap: 12px;
+      height: 100vh;
+      padding: 12px;
+    }
+
+    .panel {
+      min-height: 0;
+      border: 1px solid rgba(73, 58, 58, .12);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .left,
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .brand {
+      padding: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .theme {
+      padding: 12px;
+    }
+
+    .label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .theme-name {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .theme-note {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .meter {
+      overflow: hidden;
+      height: 8px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: #eadfda;
+    }
+
+    .meter span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #f6a35d);
+      transform-origin: left center;
+      transition: transform .25s ease;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      padding: 8px;
+    }
+
+    .tab,
+    button {
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid rgba(48, 39, 42, .16);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, .76);
+      color: var(--ink);
+      font: inherit;
+      cursor: pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+
+    button:hover,
+    .tab:hover {
+      border-color: rgba(216, 75, 116, .55);
+      transform: translateY(-1px);
+    }
+
+    .tab {
+      height: 30px;
+      padding: 0 6px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab.active {
+      border-color: rgba(216, 75, 116, .85);
+      background: #fff1f5;
+      color: #a91f4a;
+    }
+
+    .closet {
+      flex: 1;
+      min-height: 0;
+      padding: 8px;
+      overflow: hidden;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      max-height: 100%;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .choice {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      align-items: center;
+      gap: 7px;
+      min-height: 42px;
+      padding: 6px;
+      text-align: left;
+    }
+
+    .choice.active {
+      border-color: rgba(47, 143, 152, .9);
+      background: #effcfc;
+    }
+
+    .swatch,
+    .mini {
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(0, 0, 0, .12);
+      border-radius: 7px;
+      background: var(--c, #ddd);
+      box-shadow: inset 0 4px 10px rgba(255, 255, 255, .3);
+    }
+
+    .mini {
+      display: grid;
+      place-items: center;
+      color: rgba(0, 0, 0, .58);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .choice-title {
+      display: block;
+      overflow: hidden;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .choice-sub {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      overflow: hidden;
+      min-height: 0;
+      padding: 10px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .score {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 9px;
+      border: 1px solid rgba(0, 0, 0, .1);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .72);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .actions button {
+      height: 30px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .primary {
+      border-color: rgba(216, 75, 116, .5);
+      background: linear-gradient(135deg, #e65b83, #f59d61);
+      color: white;
+    }
+
+    .runway {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      margin: 6px 0;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, transparent 0 42%, rgba(255, 255, 255, .46) 42% 58%, transparent 58%),
+        radial-gradient(ellipse at center 18%, rgba(255, 255, 255, .95), transparent 32%),
+        linear-gradient(180deg, #fbf3ef 0%, #eadbd5 58%, #d7c3ba 100%);
+      overflow: hidden;
+    }
+
+    .runway::before,
+    .runway::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .runway::before {
+      background:
+        linear-gradient(75deg, transparent 0 39%, rgba(255, 255, 255, .55) 39.5% 40.2%, transparent 41%),
+        linear-gradient(-75deg, transparent 0 59%, rgba(255, 255, 255, .55) 59.5% 60.2%, transparent 61%);
+      opacity: .55;
+    }
+
+    .runway::after {
+      background: linear-gradient(180deg, transparent 61%, rgba(53, 39, 36, .17));
+    }
+
+    .avatar-wrap {
+      position: relative;
+      height: min(100%, 540px, 62vh);
+      width: auto;
+      max-width: 84%;
+      aspect-ratio: 260 / 520;
+      z-index: 1;
+      filter: drop-shadow(0 18px 18px rgba(41, 28, 26, .22));
+      transform: translateY(-1%);
+    }
+
+    .avatar {
+      position: absolute;
+      inset: 0;
+    }
+
+    .avatar svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .svg-layer {
+      pointer-events: none;
+    }
+
+    .leaderboard {
+      padding: 8px;
+      border: 1px solid rgba(0, 0, 0, .08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .52);
+    }
+
+    .leaderboard-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .leaderboard-title {
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .leaderboard-note {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .result {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid rgba(0, 0, 0, .09);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .64);
+    }
+
+    .result.first {
+      border-color: rgba(216, 75, 116, .45);
+      background: #fff1f5;
+    }
+
+    .place {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: #211a1c;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .result strong {
+      display: block;
+      overflow: hidden;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stars {
+      display: block;
+      margin-top: 3px;
+      color: #c7861f;
+      font-size: 12px;
+      letter-spacing: .04em;
+    }
+
+    .result-score {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .judge {
+      padding: 12px;
+    }
+
+    .judge-score {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .big-score {
+      font-size: 42px;
+      font-weight: 950;
+      line-height: .9;
+    }
+
+    .judge-copy {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .fit-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .fit-row {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .fit-row span:first-child {
+      color: var(--muted);
+      font-weight: 850;
+    }
+
+    .playlist {
+      padding: 12px;
+    }
+
+    .music-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .music-controls button {
+      height: 31px;
+      padding: 0 8px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .tips {
+      flex: 1;
+      min-height: 0;
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .tips ul {
+      margin: 0;
+      padding-left: 17px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 74px;
+      z-index: 4;
+      max-width: min(420px, calc(100% - 28px));
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(31, 26, 28, .88);
+      color: #fff;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      transform: translate(-50%, 18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+
+      .app {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .stage {
+        min-height: 620px;
+      }
+
+      .left,
+      .right {
+        min-height: auto;
+      }
+
+      .closet {
+        max-height: 310px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .choices,
+      .results {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .actions {
+        justify-content: stretch;
+      }
+
+      .actions button {
+        flex: 1 1 auto;
+      }
+
+      .avatar-wrap {
+        height: min(500px, 57vh);
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="left">
+      <div class="panel brand">
+        <h1>Runway Pop Dress-Up</h1>
+        <p class="subtitle">A compact dress-up runway with original pop-inspired music and cleaner avatar layers.</p>
+      </div>
+
+      <div class="panel theme">
+        <div class="label">Theme <span id="timeText">01:30</span></div>
+        <div class="theme-name" id="themeName">Idol Airport Look</div>
+        <div class="theme-note" id="themeNote">Comfortable, polished, a little star power.</div>
+        <div class="meter"><span id="timerBar"></span></div>
+      </div>
+
+      <div class="panel tabs" id="tabs"></div>
+
+      <div class="panel closet">
+        <div class="choices" id="choices"></div>
+      </div>
+    </section>
+
+    <section class="panel stage">
+      <div class="topbar">
+        <div class="score">Round <span id="round">1</span> · <span id="phase">Dressing</span></div>
+        <div class="actions">
+          <button type="button" id="randomBtn">Random Fit</button>
+          <button type="button" id="newThemeBtn">New Theme</button>
+          <button type="button" class="primary" id="runwayBtn">Walk Runway</button>
+        </div>
+      </div>
+
+      <div class="runway">
+        <div class="avatar-wrap">
+          <div class="avatar" id="avatar"></div>
+        </div>
+        <div class="toast" id="toast"></div>
+      </div>
+
+      <div class="leaderboard">
+        <div class="leaderboard-head">
+          <div class="leaderboard-title">Leaderboard</div>
+          <div class="leaderboard-note" id="leaderboardNote">Walk runway to score</div>
+        </div>
+        <div class="results" id="results"></div>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="panel judge">
+        <div class="label">Judges</div>
+        <div class="judge-score">
+          <span class="big-score" id="score">0</span>
+          <span>/ 50</span>
+        </div>
+        <div class="judge-copy" id="judgeCopy">Pick hair, outfit, shoes, glam, and accessories. The score reacts to the current theme.</div>
+        <div class="fit-list" id="fitList"></div>
+      </div>
+
+      <div class="panel playlist">
+        <div class="label">Music</div>
+        <div class="theme-note">Original glossy pop loop, built in the browser.</div>
+        <div class="music-controls">
+          <button type="button" id="musicBtn">Play Beat</button>
+          <button type="button" id="tempoBtn">Tempo +</button>
+        </div>
+      </div>
+
+      <div class="panel tips">
+        <div class="label">Fixes in this version</div>
+        <ul>
+          <li>Smaller buttons with fixed heights and wrapping-safe labels.</li>
+          <li>Scrollable closet panel so controls stop overlapping.</li>
+          <li>Hair uses one clean SVG layer per style, cleared on every change.</li>
+          <li>Long hair sits behind the body; bangs and buns sit in front.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const themes = [
+      { name: "Idol Airport Look", note: "Comfortable, polished, a little star power.", tags: ["casual", "clean", "gloss"] },
+      { name: "Music Video Finale", note: "High-impact shapes, sparkle, and stage confidence.", tags: ["stage", "sparkle", "bold"] },
+      { name: "Soft Pop Rehearsal", note: "Sporty, relaxed, dance-practice ready.", tags: ["sport", "casual", "clean"] },
+      { name: "Neon Night Out", note: "Bright contrast and strong silhouette.", tags: ["bold", "night", "gloss"] },
+      { name: "Red Carpet Debut", note: "Elegant, camera-ready, dramatic but balanced.", tags: ["formal", "sparkle", "clean"] }
+    ];
+
+    const data = {
+      hairStyle: [
+        { id: "straight", name: "Long Straight", sub: "sleek idol hair", tags: ["clean", "formal"] },
+        { id: "waves", name: "Soft Waves", sub: "volume and movement", tags: ["gloss", "formal"] },
+        { id: "curly", name: "Curly", sub: "defined curls", tags: ["bold", "stage"] },
+        { id: "bob", name: "Sharp Bob", sub: "short and chic", tags: ["clean", "bold"] },
+        { id: "ponytail", name: "High Pony", sub: "dance ready", tags: ["sport", "stage"] },
+        { id: "buns", name: "Space Buns", sub: "playful stage look", tags: ["bold", "sparkle"] },
+        { id: "braid", name: "Side Braid", sub: "sweet detail", tags: ["casual", "clean"] },
+        { id: "pixie", name: "Pixie Cut", sub: "editorial edge", tags: ["bold", "night"] }
+      ],
+      hairColor: [
+        { id: "espresso", name: "Espresso", color: "#2b1a16", tags: ["clean"] },
+        { id: "chestnut", name: "Chestnut", color: "#76452d", tags: ["casual"] },
+        { id: "black", name: "Black Shine", color: "#121014", tags: ["formal", "night"] },
+        { id: "copper", name: "Copper", color: "#b85d35", tags: ["bold"] },
+        { id: "blonde", name: "Honey Blonde", color: "#d8a75d", tags: ["gloss"] },
+        { id: "rose", name: "Rose Brown", color: "#9d5962", tags: ["sparkle"] }
+      ],
+      outfit: [
+        { id: "crop", name: "Cropped Blazer", sub: "structured top", top: "#1f2937", bottom: "#ece7e1", dress: "transparent", tags: ["clean", "formal"] },
+        { id: "pinkset", name: "Pink Stage Set", sub: "pop performance", top: "#e85d88", bottom: "#f4adc2", dress: "transparent", tags: ["stage", "sparkle"] },
+        { id: "denim", name: "Denim Mini Fit", sub: "airport casual", top: "#ffffff", bottom: "#6685aa", dress: "transparent", tags: ["casual", "clean"] },
+        { id: "tracksuit", name: "Dance Tracksuit", sub: "rehearsal mode", top: "#3d9aa2", bottom: "#2d6971", dress: "transparent", tags: ["sport", "casual"] },
+        { id: "blackdress", name: "Black Mini Dress", sub: "night runway", top: "#151417", bottom: "#151417", dress: "#151417", tags: ["night", "formal"] },
+        { id: "silver", name: "Silver Finale", sub: "shimmer dress", top: "#d9dde5", bottom: "#bfc6d2", dress: "#d9dde5", tags: ["sparkle", "stage"] },
+        { id: "red", name: "Red Carpet Gown", sub: "long formal dress", top: "#b8223c", bottom: "#9d1b32", dress: "#b8223c", tags: ["formal", "bold"] },
+        { id: "neon", name: "Neon Pop Fit", sub: "bright contrast", top: "#bef264", bottom: "#141414", dress: "transparent", tags: ["bold", "night"] }
+      ],
+      shoes: [
+        { id: "boots", name: "Platform Boots", color: "#141414", tags: ["stage", "night"] },
+        { id: "sneakers", name: "White Sneakers", color: "#f7f7f7", tags: ["casual", "sport"] },
+        { id: "heels", name: "Satin Heels", color: "#d8a75d", tags: ["formal", "gloss"] },
+        { id: "pinkboots", name: "Pink Boots", color: "#e85d88", tags: ["sparkle", "stage"] },
+        { id: "loafers", name: "Black Loafers", color: "#202020", tags: ["clean", "casual"] }
+      ],
+      glam: [
+        { id: "dewy", name: "Dewy Glow", color: "#f4a7a9", tags: ["gloss", "clean"] },
+        { id: "smoky", name: "Smoky Eye", color: "#62505c", tags: ["night", "bold"] },
+        { id: "sparkle", name: "Face Gems", color: "#f6d66d", tags: ["sparkle", "stage"] },
+        { id: "soft", name: "Soft Peach", color: "#ef9d78", tags: ["casual", "clean"] }
+      ],
+      accessory: [
+        { id: "hoops", name: "Gold Hoops", color: "#e0b747", tags: ["gloss", "night"] },
+        { id: "bow", name: "Hair Bow", color: "#e85d88", tags: ["sparkle", "casual"] },
+        { id: "cap", name: "Baseball Cap", color: "#2f8f98", tags: ["sport", "casual"] },
+        { id: "choker", name: "Velvet Choker", color: "#1b1b1f", tags: ["night", "bold"] },
+        { id: "pearls", name: "Pearls", color: "#f7f0dd", tags: ["formal", "clean"] }
+      ]
+    };
+
+    const state = {
+      tab: "hairStyle",
+      round: 1,
+      themeIndex: 0,
+      timeLeft: 90,
+      tempo: 108,
+      music: false,
+      lastResults: null,
+      choices: {
+        hairStyle: "waves",
+        hairColor: "espresso",
+        outfit: "denim",
+        shoes: "sneakers",
+        glam: "dewy",
+        accessory: "hoops"
+      }
+    };
+
+    const tabLabels = {
+      hairStyle: "Hair",
+      hairColor: "Color",
+      outfit: "Outfit",
+      shoes: "Shoes",
+      glam: "Glam",
+      accessory: "Extras"
+    };
+
+    const tabsEl = document.getElementById("tabs");
+    const choicesEl = document.getElementById("choices");
+    const avatarEl = document.getElementById("avatar");
+    const fitListEl = document.getElementById("fitList");
+    const resultsEl = document.getElementById("results");
+    const leaderboardNoteEl = document.getElementById("leaderboardNote");
+    const toastEl = document.getElementById("toast");
+    const themeNameEl = document.getElementById("themeName");
+    const themeNoteEl = document.getElementById("themeNote");
+    const timerBarEl = document.getElementById("timerBar");
+    const timeTextEl = document.getElementById("timeText");
+    const scoreEl = document.getElementById("score");
+    const judgeCopyEl = document.getElementById("judgeCopy");
+
+    function item(category, id = state.choices[category]) {
+      return data[category].find((entry) => entry.id === id);
+    }
+
+    function tagScore(tags) {
+      const theme = themes[state.themeIndex];
+      return tags.filter((tag) => theme.tags.includes(tag)).length;
+    }
+
+    function calcScore() {
+      let score = 18;
+      Object.keys(state.choices).forEach((category) => {
+        score += tagScore(item(category).tags) * 3;
+      });
+      if (item("hairStyle").tags.some((tag) => item("outfit").tags.includes(tag))) score += 4;
+      if (item("shoes").tags.some((tag) => item("outfit").tags.includes(tag))) score += 3;
+      if (item("glam").tags.some((tag) => item("accessory").tags.includes(tag))) score += 2;
+      return Math.max(0, Math.min(50, score));
+    }
+
+    function svgHair(style, color) {
+      const shade = "rgba(0,0,0,.2)";
+      const shine = "rgba(255,255,255,.16)";
+      const hair = {
+        straight: {
+          behind: `<path d="M91 97 C67 118 57 172 62 249 C65 301 72 351 60 407 C88 390 105 338 103 266 L157 266 C155 338 172 390 200 407 C188 351 195 301 198 249 C203 172 193 118 169 97 C150 82 111 82 91 97 Z" fill="${color}"/><path d="M91 104 C78 147 78 250 87 365" stroke="${shine}" stroke-width="5" fill="none" opacity=".55"/><path d="M166 104 C181 157 178 260 171 365" stroke="${shade}" stroke-width="5" fill="none" opacity=".5"/>`,
+          front: `<path d="M82 107 C103 78 153 78 176 107 C167 95 147 101 131 101 C111 101 96 95 82 107 Z" fill="${color}"/><path d="M83 120 C104 92 129 96 143 100 C125 111 106 116 83 120 Z" fill="${shine}" opacity=".45"/>`
+        },
+        waves: {
+          behind: `<path d="M83 103 C55 140 59 214 70 264 C86 338 55 381 78 420 C102 390 94 330 105 282 C116 330 104 388 130 424 C154 388 145 330 156 282 C167 330 159 390 183 420 C207 381 175 338 191 264 C202 214 205 140 177 103 C153 78 108 78 83 103 Z" fill="${color}"/><path d="M87 137 C70 179 89 205 78 245 C67 284 88 315 77 357" stroke="${shine}" stroke-width="5" fill="none" opacity=".45"/><path d="M173 137 C190 179 171 205 182 245 C193 284 172 315 183 357" stroke="${shade}" stroke-width="5" fill="none" opacity=".45"/>`,
+          front: `<path d="M78 115 C92 86 123 82 139 91 C160 78 179 96 184 123 C157 111 139 111 116 118 C101 123 88 124 78 115 Z" fill="${color}"/><path d="M100 98 C113 90 130 92 141 98" stroke="${shine}" stroke-width="5" fill="none" opacity=".5"/>`
+        },
+        curly: {
+          behind: `<g fill="${color}"><circle cx="78" cy="129" r="27"/><circle cx="63" cy="169" r="26"/><circle cx="67" cy="217" r="29"/><circle cx="79" cy="266" r="28"/><circle cx="83" cy="319" r="25"/><circle cx="182" cy="129" r="27"/><circle cx="197" cy="169" r="26"/><circle cx="193" cy="217" r="29"/><circle cx="181" cy="266" r="28"/><circle cx="177" cy="319" r="25"/><circle cx="102" cy="100" r="26"/><circle cx="130" cy="92" r="27"/><circle cx="158" cy="100" r="26"/></g><g fill="${shade}" opacity=".28"><circle cx="70" cy="180" r="13"/><circle cx="190" cy="214" r="15"/><circle cx="86" cy="288" r="14"/></g>`,
+          front: `<g fill="${color}"><circle cx="87" cy="114" r="23"/><circle cx="112" cy="96" r="24"/><circle cx="142" cy="96" r="24"/><circle cx="171" cy="116" r="24"/><circle cx="103" cy="128" r="20"/><circle cx="152" cy="130" r="20"/></g><g fill="${shine}" opacity=".22"><circle cx="111" cy="88" r="8"/><circle cx="83" cy="106" r="7"/><circle cx="160" cy="105" r="8"/></g>`
+        },
+        bob: {
+          behind: `<path d="M78 108 C68 141 66 189 73 232 C88 254 106 263 130 263 C154 263 173 254 187 232 C194 189 192 141 182 108 C159 84 101 84 78 108 Z" fill="${color}"/><path d="M75 218 C96 241 164 241 187 218" stroke="${shade}" stroke-width="5" fill="none" opacity=".35"/>`,
+          front: `<path d="M77 113 C99 83 153 82 183 113 C166 109 149 115 132 115 C109 116 91 111 77 113 Z" fill="${color}"/><path d="M122 91 C111 127 92 136 74 140 C82 109 99 94 122 91 Z" fill="${color}"/><path d="M126 96 C118 117 105 130 88 136" stroke="${shine}" stroke-width="4" fill="none" opacity=".5"/>`
+        },
+        ponytail: {
+          behind: `<path d="M154 117 C210 128 222 190 196 257 C186 283 189 313 209 343 C169 333 151 292 163 252 C174 214 173 162 145 139 Z" fill="${color}"/><path d="M169 148 C204 176 197 237 181 276" stroke="${shine}" stroke-width="5" fill="none" opacity=".42"/>`,
+          front: `<path d="M82 109 C96 83 157 77 179 110 C170 139 150 150 128 149 C105 148 89 136 82 109 Z" fill="${color}"/><path d="M104 95 C117 86 149 88 164 99" stroke="${shine}" stroke-width="5" fill="none" opacity=".45"/><circle cx="159" cy="126" r="10" fill="var(--metal)"/>`
+        },
+        buns: {
+          behind: `<g fill="${color}"><circle cx="78" cy="91" r="30"/><circle cx="182" cy="91" r="30"/></g><g fill="${shade}" opacity=".28"><circle cx="70" cy="91" r="13"/><circle cx="190" cy="91" r="13"/></g>`,
+          front: `<path d="M85 119 C96 88 159 88 175 119 C164 143 148 153 128 153 C108 153 93 143 85 119 Z" fill="${color}"/><path d="M105 99 C119 92 144 92 159 101" stroke="${shine}" stroke-width="5" fill="none" opacity=".45"/>`
+        },
+        braid: {
+          behind: `<path d="M88 104 C67 138 67 219 83 261 C98 300 118 320 124 356 C130 397 106 420 115 448 C154 428 161 382 151 340 C142 302 121 279 111 246 C96 196 105 143 135 107 Z" fill="${color}"/><path d="M111 261 C151 279 173 306 174 342 C175 394 136 428 144 456 C188 437 207 391 198 340 C190 292 156 270 130 245 Z" fill="${color}"/><path d="M132 286 L166 308 L137 333 L171 357 L139 384 L160 410" stroke="${shade}" stroke-width="7" fill="none" opacity=".38"/>`,
+          front: `<path d="M80 113 C96 83 151 80 181 109 C159 115 145 127 128 128 C105 128 91 121 80 113 Z" fill="${color}"/><path d="M101 98 C115 88 146 91 164 101" stroke="${shine}" stroke-width="5" fill="none" opacity=".42"/>`
+        },
+        pixie: {
+          behind: `<path d="M89 112 C95 85 161 78 178 112 C176 145 157 166 129 166 C101 166 82 145 89 112 Z" fill="${color}"/>`,
+          front: `<path d="M82 113 C104 82 156 83 180 112 C161 108 152 118 135 119 C112 121 101 112 82 113 Z" fill="${color}"/><path d="M92 112 C111 91 133 92 149 99 C133 109 117 119 92 112 Z" fill="${shine}" opacity=".44"/>`
+        }
+      };
+      return hair[style];
+    }
+
+    function accessorySvg(accessory) {
+      const color = item("accessory").color;
+      const layers = {
+        hoops: `<circle cx="84" cy="158" r="8" fill="none" stroke="${color}" stroke-width="4"/><circle cx="176" cy="158" r="8" fill="none" stroke="${color}" stroke-width="4"/>`,
+        bow: `<path d="M113 91 L130 105 L113 119 Z M147 91 L130 105 L147 119 Z" fill="${color}"/><circle cx="130" cy="105" r="5" fill="#fff"/>`,
+        cap: `<path d="M82 105 C99 78 158 78 179 105 L174 123 C146 111 113 111 87 123 Z" fill="${color}"/><path d="M171 112 C195 113 207 122 210 132 C190 130 176 126 164 119 Z" fill="${color}"/>`,
+        choker: `<path d="M103 184 C119 191 141 191 157 184 L159 194 C141 201 119 201 101 194 Z" fill="${color}"/>`,
+        pearls: `<g fill="${color}"><circle cx="104" cy="187" r="4"/><circle cx="115" cy="192" r="4"/><circle cx="127" cy="194" r="4"/><circle cx="139" cy="192" r="4"/><circle cx="151" cy="187" r="4"/></g>`
+      };
+      return layers[accessory] || "";
+    }
+
+    function avatarSvg() {
+      const hairColor = item("hairColor").color;
+      const style = svgHair(state.choices.hairStyle, hairColor);
+      const outfit = item("outfit");
+      const shoes = item("shoes");
+      const glam = item("glam");
+      const dress = outfit.dress !== "transparent";
+      const lower = dress
+        ? `<path d="M92 241 C91 304 82 353 67 427 L193 427 C178 353 169 304 168 241 Z" fill="${outfit.dress}"/><path d="M102 253 C112 323 112 379 105 427" stroke="rgba(255,255,255,.18)" stroke-width="5" fill="none"/>`
+        : `<path d="M91 248 L122 248 L116 400 L86 400 Z" fill="${outfit.bottom}"/><path d="M138 248 L169 248 L174 400 L144 400 Z" fill="${outfit.bottom}"/><path d="M121 248 L139 248 L136 319 L124 319 Z" fill="rgba(0,0,0,.12)"/>`;
+
+      return `
+        <svg viewBox="0 0 260 520" role="img" aria-label="Styled runway model">
+          <g class="svg-layer hair-behind">${style.behind}</g>
+          <g class="svg-layer body">
+            <path d="M98 182 C106 205 154 205 162 182 L171 255 C153 273 106 273 89 255 Z" fill="var(--skin)"/>
+            <path d="M82 201 C57 231 49 286 57 345" stroke="var(--skin)" stroke-width="17" stroke-linecap="round" fill="none"/>
+            <path d="M178 201 C203 231 211 286 203 345" stroke="var(--skin)" stroke-width="17" stroke-linecap="round" fill="none"/>
+            <path d="M88 397 L118 397 L115 492 L91 492 Z" fill="var(--skin)"/>
+            <path d="M142 397 L172 397 L169 492 L145 492 Z" fill="var(--skin)"/>
+            <ellipse cx="130" cy="142" rx="43" ry="51" fill="var(--skin)"/>
+            <path d="M92 207 C108 191 152 191 168 207 L174 253 C151 271 109 271 86 253 Z" fill="${outfit.top}"/>
+            ${lower}
+            <path d="M84 488 C97 480 111 481 121 493 L120 505 L80 505 C77 500 78 494 84 488 Z" fill="${shoes.color}"/>
+            <path d="M139 493 C149 481 164 480 176 488 C182 494 183 500 180 505 L140 505 Z" fill="${shoes.color}"/>
+            <path d="M108 145 C116 153 144 153 152 145" stroke="rgba(70,35,32,.5)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="114" cy="132" r="3" fill="#2d1f20"/>
+            <circle cx="146" cy="132" r="3" fill="#2d1f20"/>
+            <circle cx="106" cy="151" r="6" fill="${glam.color}" opacity=".45"/>
+            <circle cx="154" cy="151" r="6" fill="${glam.color}" opacity=".45"/>
+          </g>
+          <g class="svg-layer hair-front">${style.front}</g>
+          <g class="svg-layer accessory">${accessorySvg(state.choices.accessory)}</g>
+        </svg>`;
+    }
+
+    function renderTabs() {
+      tabsEl.innerHTML = Object.keys(tabLabels).map((key) => `
+        <button type="button" class="tab ${state.tab === key ? "active" : ""}" data-tab="${key}">${tabLabels[key]}</button>
+      `).join("");
+    }
+
+    function renderChoices() {
+      choicesEl.innerHTML = data[state.tab].map((entry) => {
+        const active = state.choices[state.tab] === entry.id ? "active" : "";
+        const swatch = entry.color || entry.top || entry.dress || "#f3f3f3";
+        const miniText = state.tab === "hairStyle" ? entry.name.charAt(0) : "";
+        return `
+          <button type="button" class="choice ${active}" data-choice="${entry.id}">
+            <span class="${state.tab === "hairStyle" ? "mini" : "swatch"}" style="--c:${swatch}">${miniText}</span>
+            <span>
+              <span class="choice-title">${entry.name}</span>
+              <span class="choice-sub">${entry.sub || entry.tags.join(" · ")}</span>
+            </span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderFit() {
+      const rows = [
+        ["Hair", `${item("hairStyle").name}, ${item("hairColor").name}`],
+        ["Outfit", item("outfit").name],
+        ["Shoes", item("shoes").name],
+        ["Glam", item("glam").name],
+        ["Extra", item("accessory").name]
+      ];
+      fitListEl.innerHTML = rows.map(([label, value]) => `<div class="fit-row"><span>${label}</span><span>${value}</span></div>`).join("");
+    }
+
+    function renderScore() {
+      const score = calcScore();
+      scoreEl.textContent = score;
+      const theme = themes[state.themeIndex];
+      const matches = Object.keys(state.choices).reduce((sum, category) => sum + tagScore(item(category).tags), 0);
+      judgeCopyEl.textContent = matches > 5
+        ? `Strong match for ${theme.name}. The styling reads intentional and runway-ready.`
+        : `Nice base. Add more ${theme.tags.join(", ")} choices to fit the theme better.`;
+    }
+
+    function createResults() {
+      const competitors = ["Mina", "Lara", "Yoon"];
+      const you = calcScore();
+      return [
+        { name: "You", score: you },
+        ...competitors.map((name, index) => ({
+          name,
+          score: 26 + Math.floor(Math.random() * 20) + (index === 0 ? 2 : 0)
+        }))
+      ].sort((a, b) => b.score - a.score);
+    }
+
+    function renderResults() {
+      if (!state.lastResults) {
+        leaderboardNoteEl.textContent = "Walk runway to score";
+        resultsEl.innerHTML = ["You", "Mina", "Lara", "Yoon"].map((name) => `
+          <div class="result">
+            <span class="place">-</span>
+            <span>
+              <strong>${name}</strong>
+              <span class="result-score">Not scored yet</span>
+            </span>
+          </div>
+        `).join("");
+        return;
+      }
+
+      const yourRank = state.lastResults.findIndex((entry) => entry.name === "You") + 1;
+      leaderboardNoteEl.textContent = `You placed #${yourRank}`;
+      resultsEl.innerHTML = state.lastResults.map((entry, index) => {
+        const stars = Math.max(1, Math.round(entry.score / 10));
+        const first = index === 0 ? "first" : "";
+        return `
+          <div class="result ${first}">
+            <span class="place">${index + 1}</span>
+            <span>
+              <strong>${entry.name}</strong>
+              <span class="result-score">${entry.score} / 50</span>
+              <span class="stars">${"★".repeat(stars)}${"☆".repeat(5 - stars)}</span>
+            </span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTheme() {
+      const theme = themes[state.themeIndex];
+      themeNameEl.textContent = theme.name;
+      themeNoteEl.textContent = theme.note;
+      document.getElementById("round").textContent = state.round;
+    }
+
+    function renderTimer() {
+      const mins = String(Math.floor(state.timeLeft / 60)).padStart(2, "0");
+      const secs = String(state.timeLeft % 60).padStart(2, "0");
+      timeTextEl.textContent = `${mins}:${secs}`;
+      timerBarEl.style.transform = `scaleX(${state.timeLeft / 90})`;
+    }
+
+    function render() {
+      renderTabs();
+      renderChoices();
+      avatarEl.innerHTML = avatarSvg();
+      renderFit();
+      renderTheme();
+      renderTimer();
+      renderScore();
+    }
+
+    function toast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      window.clearTimeout(toastEl._timer);
+      toastEl._timer = window.setTimeout(() => toastEl.classList.remove("show"), 1700);
+    }
+
+    tabsEl.addEventListener("click", (event) => {
+      const tab = event.target.closest("[data-tab]");
+      if (!tab) return;
+      state.tab = tab.dataset.tab;
+      render();
+    });
+
+    choicesEl.addEventListener("click", (event) => {
+      const choice = event.target.closest("[data-choice]");
+      if (!choice) return;
+      state.choices[state.tab] = choice.dataset.choice;
+      render();
+    });
+
+    document.getElementById("randomBtn").addEventListener("click", () => {
+      Object.keys(state.choices).forEach((category) => {
+        const options = data[category];
+        state.choices[category] = options[Math.floor(Math.random() * options.length)].id;
+      });
+      render();
+      toast("Randomized without stacking any old hair layers.");
+    });
+
+    document.getElementById("newThemeBtn").addEventListener("click", () => {
+      state.themeIndex = (state.themeIndex + 1) % themes.length;
+      state.round += 1;
+      state.timeLeft = 90;
+      state.lastResults = null;
+      document.getElementById("phase").textContent = "Dressing";
+      render();
+      renderResults();
+      toast("New theme. Build the fit around the tags.");
+    });
+
+    document.getElementById("runwayBtn").addEventListener("click", () => {
+      document.getElementById("phase").textContent = "Runway";
+      state.lastResults = createResults();
+      renderResults();
+      toast(`Runway score: ${calcScore()} / 50`);
+    });
+
+    let audioCtx;
+    let musicTimer;
+
+    function tone(freq, start, length, type, gainValue) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + length);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + length + .02);
+    }
+
+    function beat() {
+      if (!state.music) return;
+      const now = audioCtx.currentTime;
+      const step = 60 / state.tempo / 2;
+      const bass = [110, 110, 146.83, 98];
+      for (let i = 0; i < 16; i += 1) {
+        const t = now + i * step;
+        if (i % 4 === 0) tone(58, t, .08, "sine", .18);
+        if (i % 4 === 2) tone(176, t, .04, "triangle", .05);
+        if (i % 2 === 1) tone(9000, t, .018, "square", .018);
+        tone(bass[Math.floor(i / 4)], t, .12, "sawtooth", .035);
+        if ([3, 6, 10, 14].includes(i)) tone([440, 554, 659, 740][i % 4], t, .11, "triangle", .035);
+      }
+      musicTimer = window.setTimeout(beat, step * 16 * 1000);
+    }
+
+    document.getElementById("musicBtn").addEventListener("click", async () => {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") await audioCtx.resume();
+      state.music = !state.music;
+      document.getElementById("musicBtn").textContent = state.music ? "Stop Beat" : "Play Beat";
+      window.clearTimeout(musicTimer);
+      if (state.music) beat();
+    });
+
+    document.getElementById("tempoBtn").addEventListener("click", () => {
+      state.tempo = state.tempo >= 124 ? 96 : state.tempo + 8;
+      document.getElementById("tempoBtn").textContent = `${state.tempo} BPM`;
+      if (state.music) {
+        window.clearTimeout(musicTimer);
+        beat();
+      }
+    });
+
+    window.setInterval(() => {
+      if (state.timeLeft > 0 && document.getElementById("phase").textContent === "Dressing") {
+        state.timeLeft -= 1;
+        renderTimer();
+      }
+    }, 1000);
+
+    render();
+    renderResults();
+  </script>
+</body>
+</html>
